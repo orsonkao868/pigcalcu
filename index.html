@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>🐶 汪汪換算小幫手</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #181210;
+      --bg2:       #201810;
+      --card:      #271E14;
+      --card2:     #301F10;
+      --border:    rgba(220,155,70,0.18);
+      --border2:   rgba(220,155,70,0.38);
+      --amber:     #E8A040;
+      --amber-d:   #A86820;
+      --amber-l:   #F5BE60;
+      --amber-dim: rgba(232,160,64,0.13);
+      --green-soft:rgba(90,154,104,0.15);
+      --text:      #EED8B8;
+      --text-mid:  #A88060;
+      --text-dim:  #604838;
+      --gold:      #F0BC58;
+      --shadow:    rgba(0,0,0,0.55);
+      --radius:    18px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .bg-glow {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 20% 15%, rgba(232,160,64,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 85%, rgba(200,96,122,0.05) 0%, transparent 50%);
+    }
+    .paws { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .paw { position: absolute; font-size: 20px; opacity: 0.06; animation: floatPaw linear infinite; }
+    @keyframes floatPaw {
+      0%   { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.08; }
+      90%  { opacity: 0.08; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+
+    .container { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; padding: 12px 14px 80px; }
+
+    /* HEADER */
+    header { text-align: center; padding: 14px 0 8px; }
+    .dog-svg {
+      width: 62px; height: 62px;
+      filter: drop-shadow(0 4px 16px rgba(232,160,64,0.45));
+      animation: dogBounce 2.4s ease-in-out infinite;
+    }
+    @keyframes dogBounce {
+      0%,100% { transform: translateY(0) rotate(-3deg); }
+      50%      { transform: translateY(-8px) rotate(3deg); }
+    }
+    h1 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 21px; font-weight: 900;
+      color: var(--gold); letter-spacing: 1px;
+      text-shadow: 0 0 24px rgba(240,188,88,0.35);
+      margin-top: 5px;
+    }
+    .subtitle { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+
+    /* TABS */
+    .tabs {
+      display: flex; gap: 4px;
+      margin: 10px 0 10px;
+      background: var(--card);
+      border-radius: 50px; padding: 4px;
+      border: 1px solid var(--border);
+    }
+    .tab {
+      flex: 1; padding: 8px 4px;
+      border: none; border-radius: 46px;
+      background: transparent;
+      font-size: 11px; font-family: 'Noto Sans TC', sans-serif; font-weight: 700;
+      color: var(--text-mid); cursor: pointer; transition: all 0.22s;
+      white-space: nowrap;
+    }
+    .tab.active {
+      background: var(--card2); color: var(--gold);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      border: 1px solid var(--border2);
+    }
+
+    /* CARD */
+    .card {
+      background: var(--card); border-radius: var(--radius);
+      padding: 16px; margin-bottom: 10px;
+      box-shadow: 0 4px 24px var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .card-title {
+      font-size: 13px; font-weight: 700; color: var(--amber-l);
+      margin-bottom: 13px; display: flex; align-items: center; gap: 6px;
+      padding-bottom: 9px; border-bottom: 1px solid var(--border);
+    }
+
+    /* FIELDS */
+    .field { margin-bottom: 11px; }
+    label { display: block; font-size: 11px; font-weight: 700; color: var(--text-mid); margin-bottom: 5px; }
+    .input-wrap {
+      display: flex; align-items: center;
+      background: var(--bg2); border: 1.5px solid var(--border);
+      border-radius: 12px; overflow: hidden; transition: border-color 0.2s;
+    }
+    .input-wrap:focus-within {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 3px rgba(232,160,64,0.12);
+    }
+    .input-wrap input {
+      flex: 1; border: none; background: transparent;
+      padding: 11px 13px;
+      font-size: 16px; font-family: 'Nunito', sans-serif; font-weight: 800;
+      color: var(--text); outline: none; min-width: 0;
+    }
+    .input-wrap input::placeholder { color: var(--text-dim); font-weight: 700; font-size: 13px; }
+    .unit-select {
+      border: none; background: var(--card2);
+      padding: 11px 10px; font-size: 12px; font-weight: 700;
+      color: var(--amber-l); outline: none; cursor: pointer;
+      border-left: 1px solid var(--border);
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .unit-badge {
+      padding: 0 12px; font-size: 12px; font-weight: 800;
+      color: var(--amber); white-space: nowrap;
+      border-left: 1px solid var(--border);
+    }
+
+    /* per-box */
+    .per-box-row { display: none; margin-top: 8px; }
+    .per-box-row.show { display: block; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* QUICK TAGS */
+    .tag-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+    .quick-tag {
+      padding: 5px 11px; border-radius: 50px;
+      background: var(--amber-dim); border: 1px solid var(--border2);
+      font-size: 11px; font-weight: 700; color: var(--amber-l);
+      cursor: pointer; transition: all 0.18s; white-space: nowrap;
+    }
+    .quick-tag:active { background: rgba(232,160,64,0.28); }
+
+    /* RESULT */
+    .result-card {
+      background: linear-gradient(135deg, #2E1E0C, #281508);
+      border: 1.5px solid var(--amber); border-radius: var(--radius);
+      padding: 16px; margin-bottom: 10px;
+      box-shadow: 0 4px 24px rgba(232,160,64,0.15);
+      animation: popIn 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .result-label { font-size: 11px; font-weight: 700; color: var(--text-mid); margin-bottom: 3px; }
+    .result-value { font-family: 'Nunito', sans-serif; font-size: 34px; font-weight: 900; color: var(--gold); line-height: 1.1; }
+    .result-value span { font-size: 15px; font-weight: 700; opacity: 0.7; margin-left: 4px; }
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 11px; }
+    .result-mini {
+      background: rgba(255,255,255,0.04); border-radius: 10px;
+      padding: 9px 10px; border: 1px solid var(--border);
+    }
+    .result-mini .result-label { font-size: 10px; }
+    .result-mini .result-value { font-size: 19px; }
+
+    /* BUTTONS */
+    .btn-calc {
+      width: 100%; padding: 13px; border: none; border-radius: 14px;
+      background: linear-gradient(135deg, var(--amber-l), var(--amber));
+      color: #1A0E00; font-size: 15px; font-family: 'Nunito', sans-serif; font-weight: 900;
+      cursor: pointer; box-shadow: 0 4px 18px rgba(232,160,64,0.35), 0 2px 0 var(--amber-d);
+      transition: all 0.18s; letter-spacing: 0.5px; margin-bottom: 8px;
+    }
+    .btn-calc:active { transform: translateY(2px); box-shadow: 0 2px 8px rgba(232,160,64,0.2); }
+    .btn-reset {
+      width: 100%; padding: 10px; border: 1px solid var(--border2); border-radius: 12px;
+      background: transparent; color: var(--text-mid);
+      font-size: 12px; font-family: 'Noto Sans TC', sans-serif; font-weight: 700;
+      cursor: pointer; transition: all 0.18s;
+    }
+    .btn-reset:active { background: var(--card2); }
+
+    /* SECTION LABEL */
+    .section-label {
+      font-size: 11px; font-weight: 700; color: var(--text-dim); letter-spacing: 0.5px;
+      margin: 12px 0 7px; display: flex; align-items: center; gap: 6px;
+    }
+    .section-label::after { content:''; flex:1; height:1px; background: var(--border); }
+
+    /* MARGIN QUICK BTNS */
+    .margin-btn-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+    .margin-quick {
+      padding: 7px 13px; border-radius: 50px;
+      border: 1.5px solid var(--border2); background: var(--amber-dim);
+      font-size: 12px; font-weight: 700; color: var(--amber-l);
+      cursor: pointer; transition: all 0.18s;
+    }
+    .margin-quick.selected { background: var(--amber); color: #1A0E00; border-color: var(--amber-l); }
+
+    /* MARGIN RESULT */
+    .margin-result-main {
+      background: linear-gradient(135deg, #2E1E0C, #281508);
+      border: 1.5px solid var(--amber); border-radius: var(--radius);
+      padding: 16px; margin-bottom: 10px;
+      animation: popIn 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .margin-big { font-family: 'Nunito', sans-serif; font-size: 38px; font-weight: 900; color: var(--gold); }
+    .margin-big span { font-size: 17px; opacity: 0.7; margin-left: 4px; }
+    .margin-desc { font-size: 11px; color: var(--text-mid); margin-top: 7px; line-height: 1.65; }
+
+    /* PRICE TABLE */
+    .price-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+    .price-table th {
+      font-size: 10px; font-weight: 700; color: var(--text-dim);
+      text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--border);
+    }
+    .price-table td {
+      font-size: 13px; padding: 8px 8px; border-bottom: 1px solid var(--border);
+      font-family: 'Nunito', sans-serif; font-weight: 800;
+    }
+    .price-table td:first-child { color: var(--text-mid); font-family: 'Noto Sans TC', sans-serif; font-size: 11px; font-weight: 700; }
+    .price-table td:nth-child(2) { color: var(--text-mid); }
+    .price-table td:last-child { color: var(--gold); }
+    .price-table tr:last-child td { border-bottom: none; }
+    .price-table tr.highlight td { background: rgba(232,160,64,0.08); }
+
+    /* WEIGHT PAGE */
+    .convert-arrow { text-align: center; font-size: 18px; margin: 5px 0; color: var(--border2); }
+    .formula-box {
+      background: var(--green-soft); border-radius: 11px; padding: 11px 13px;
+      font-size: 11px; color: #7AC884; font-weight: 600; margin-top: 11px;
+      border: 1px solid rgba(90,154,104,0.3); line-height: 1.75;
+    }
+
+    /* HISTORY */
+    .history-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 11px; border-radius: 10px;
+      background: var(--bg2); margin-bottom: 6px;
+      border: 1px solid var(--border);
+    }
+    .history-item .hi-label { color: var(--text-mid); font-weight: 600; font-size: 11px; }
+    .history-item .hi-val { font-weight: 900; color: var(--gold); font-family: 'Nunito', sans-serif; font-size: 14px; }
+    .no-history { text-align: center; color: var(--text-dim); font-size: 12px; padding: 18px 0; }
+    .note { text-align: center; font-size: 10px; color: var(--text-dim); opacity: 0.5; margin-top: 4px; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    @media (max-width: 360px) {
+      .result-value { font-size: 26px; }
+      .margin-big { font-size: 30px; }
+      h1 { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="paws" id="pawContainer"></div>
+
+<div class="container">
+
+  <header>
+    <svg class="dog-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="60" cy="80" rx="32" ry="26" fill="#8B5A2B"/>
+      <circle cx="60" cy="50" r="28" fill="#A0692E"/>
+      <ellipse cx="36" cy="36" rx="13" ry="18" fill="#7A4A1E" transform="rotate(-15 36 36)"/>
+      <ellipse cx="84" cy="36" rx="13" ry="18" fill="#7A4A1E" transform="rotate(15 84 36)"/>
+      <ellipse cx="37" cy="37" rx="7" ry="11" fill="#C47A5A" transform="rotate(-15 37 37)"/>
+      <ellipse cx="83" cy="37" rx="7" ry="11" fill="#C47A5A" transform="rotate(15 83 37)"/>
+      <circle cx="50" cy="46" r="5" fill="#1A0E00"/>
+      <circle cx="70" cy="46" r="5" fill="#1A0E00"/>
+      <circle cx="52" cy="44" r="1.5" fill="white" opacity="0.8"/>
+      <circle cx="72" cy="44" r="1.5" fill="white" opacity="0.8"/>
+      <ellipse cx="60" cy="57" rx="12" ry="9" fill="#C8904A"/>
+      <ellipse cx="60" cy="52" rx="5" ry="3.5" fill="#1A0E00"/>
+      <path d="M53 60 Q60 66 67 60" stroke="#1A0E00" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <ellipse cx="60" cy="65" rx="5" ry="4" fill="#C06070"/>
+      <circle cx="42" cy="58" r="6" fill="#C08070" opacity="0.4"/>
+      <circle cx="78" cy="58" r="6" fill="#C08070" opacity="0.4"/>
+      <path d="M90 88 Q108 70 100 56" stroke="#7A4A1E" stroke-width="9" stroke-linecap="round" fill="none"/>
+      <ellipse cx="42" cy="100" rx="12" ry="8" fill="#8B5A2B"/>
+      <ellipse cx="78" cy="100" rx="12" ry="8" fill="#8B5A2B"/>
+      <circle cx="36" cy="97" r="3" fill="#6A3A18"/><circle cx="42" cy="95" r="3" fill="#6A3A18"/><circle cx="48" cy="97" r="3" fill="#6A3A18"/>
+      <circle cx="72" cy="97" r="3" fill="#6A3A18"/><circle cx="78" cy="95" r="3" fill="#6A3A18"/><circle cx="84" cy="97" r="3" fill="#6A3A18"/>
+      <circle cx="68" cy="74" r="7" fill="#7A4A1E" opacity="0.5"/>
+    </svg>
+    <h1>🐾 汪汪換算小幫手</h1>
+    <p class="subtitle">重量・單價・金額・毛利，一汪搞定！</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active"  onclick="switchTab('price')">💰 計算金額</button>
+    <button class="tab"         onclick="switchTab('margin')">📈 毛利計算</button>
+    <button class="tab"         onclick="switchTab('weight')">⚖️ 重量換算</button>
+    <button class="tab"         onclick="switchTab('history')">📋 紀錄</button>
+  </div>
+
+  <!-- ===== PAGE: PRICE ===== -->
+  <div class="page active" id="page-price">
+    <div class="card">
+      <div class="card-title">🐶 輸入資料</div>
+
+      <div class="field">
+        <label>數量單位</label>
+        <div class="input-wrap">
+          <input type="number" id="qty" placeholder="例：5" inputmode="decimal"/>
+          <select class="unit-select" id="qtyUnit" onchange="togglePerBox()">
+            <option value="個">個</option>
+            <option value="箱">箱</option>
+            <option value="包">包</option>
+            <option value="打">打 (×12個)</option>
+            <option value="百">百 (×100個)</option>
+            <option value="自訂">自訂單位</option>
+          </select>
+        </div>
+        <!-- 每箱/包幾個 -->
+        <div class="per-box-row" id="perBoxRow">
+          <label style="margin-top:9px;">每 <span id="perBoxLabel">箱</span> 裡有幾個</label>
+          <div class="input-wrap">
+            <input type="number" id="perBox" placeholder="例：12" inputmode="decimal"/>
+            <div class="unit-badge">個 / <span id="perBoxLabel2">箱</span></div>
+          </div>
+          <div class="tag-row">
+            <span class="quick-tag" onclick="setPerBox(6)">6個</span>
+            <span class="quick-tag" onclick="setPerBox(10)">10個</span>
+            <span class="quick-tag" onclick="setPerBox(12)">12個</span>
+            <span class="quick-tag" onclick="setPerBox(20)">20個</span>
+            <span class="quick-tag" onclick="setPerBox(24)">24個</span>
+            <span class="quick-tag" onclick="setPerBox(30)">30個</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>重量（每個）</label>
+        <div class="input-wrap">
+          <input type="number" id="weightPerUnit" placeholder="例：0.6" inputmode="decimal"/>
+          <select class="unit-select" id="weightUnit">
+            <option value="kg">公斤(kg)</option>
+            <option value="台斤">臺斤</option>
+            <option value="g">公克(g)</option>
+            <option value="lb">磅(lb)</option>
+          </select>
+        </div>
+        <div class="tag-row">
+          <span class="quick-tag" onclick="setW(0.6,'台斤')">0.6 斤</span>
+          <span class="quick-tag" onclick="setW(1,'台斤')">1 斤</span>
+          <span class="quick-tag" onclick="setW(0.5,'kg')">0.5 kg</span>
+          <span class="quick-tag" onclick="setW(1,'kg')">1 kg</span>
+          <span class="quick-tag" onclick="setW(100,'g')">100 g</span>
+          <span class="quick-tag" onclick="setW(500,'g')">500 g</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>單價</label>
+        <div class="input-wrap">
+          <input type="number" id="price" placeholder="例：80" inputmode="decimal"/>
+          <select class="unit-select" id="priceUnit">
+            <option value="per_item">元 / 個</option>
+            <option value="per_box">元 / 箱(包)</option>
+            <option value="per_kg">元 / 公斤</option>
+            <option value="per_jin">元 / 臺斤</option>
+            <option value="per_g">元 / 公克</option>
+            <option value="per_lb">元 / 磅</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-calc" onclick="calcPrice()">🐾 計算！汪！</button>
+    <button class="btn-reset" onclick="resetPrice()">清除重來</button>
+    <div id="priceResult" style="display:none; margin-top:10px;"></div>
+  </div>
+
+  <!-- ===== PAGE: MARGIN ===== -->
+  <div class="page" id="page-margin">
+    <div class="card">
+      <div class="card-title">📈 毛利率計算機</div>
+
+      <div class="section-label">快速選毛利率</div>
+      <div class="margin-btn-row">
+        <button class="margin-quick" onclick="setMargin(10)">一成 10%</button>
+        <button class="margin-quick" onclick="setMargin(20)">二成 20%</button>
+        <button class="margin-quick" onclick="setMargin(25)">兩成半 25%</button>
+        <button class="margin-quick" onclick="setMargin(30)">三成 30%</button>
+        <button class="margin-quick" onclick="setMargin(40)">四成 40%</button>
+        <button class="margin-quick" onclick="setMargin(50)">五成 50%</button>
+      </div>
+
+      <div class="section-label">自訂毛利率</div>
+      <div class="field">
+        <div class="input-wrap">
+          <input type="number" id="marginPct" placeholder="輸入 % 數，例：30" inputmode="decimal" oninput="clearMarginQuick(); calcMargin();"/>
+          <div class="unit-badge">%</div>
+        </div>
+      </div>
+
+      <div class="section-label">輸入成本（四選一填）</div>
+      <div class="grid2">
+        <div class="field">
+          <label>元 / 個</label>
+          <div class="input-wrap">
+            <input type="number" id="costItem" placeholder="例：50" inputmode="decimal" oninput="syncCost('Item')"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>元 / 公斤</label>
+          <div class="input-wrap">
+            <input type="number" id="costKg" placeholder="例：80" inputmode="decimal" oninput="syncCost('Kg')"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>元 / 臺斤</label>
+          <div class="input-wrap">
+            <input type="number" id="costJin" placeholder="例：48" inputmode="decimal" oninput="syncCost('Jin')"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>元 / 公克</label>
+          <div class="input-wrap">
+            <input type="number" id="costG" placeholder="例：0.08" inputmode="decimal" oninput="syncCost('G')"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">每個重量（選填，跨單位推算用）</div>
+      <div class="field">
+        <div class="input-wrap">
+          <input type="number" id="mWeight" placeholder="例：0.6" inputmode="decimal" oninput="calcMargin()"/>
+          <select class="unit-select" id="mWeightUnit" onchange="calcMargin()">
+            <option value="kg">公斤(kg)</option>
+            <option value="台斤">臺斤</option>
+            <option value="g">公克(g)</option>
+            <option value="lb">磅(lb)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-calc" onclick="calcMargin()">🐾 算出售價！汪！</button>
+    <button class="btn-reset" onclick="resetMargin()">清除重來</button>
+    <div id="marginResult" style="display:none; margin-top:10px;"></div>
+  </div>
+
+  <!-- ===== PAGE: WEIGHT ===== -->
+  <div class="page" id="page-weight">
+    <div class="card">
+      <div class="card-title">⚖️ 重量換算</div>
+      <div class="field">
+        <label>輸入重量</label>
+        <div class="input-wrap">
+          <input type="number" id="wInput" placeholder="輸入數字" inputmode="decimal" oninput="calcWeight()"/>
+          <select class="unit-select" id="wFrom" onchange="calcWeight()">
+            <option value="kg">公斤 (kg)</option>
+            <option value="jin">臺斤</option>
+            <option value="g">公克 (g)</option>
+            <option value="lb">磅 (lb)</option>
+            <option value="oz">盎司 (oz)</option>
+            <option value="catty">港斤</option>
+          </select>
+        </div>
+      </div>
+      <div class="convert-arrow">🐾 ↕ 🐾</div>
+      <div id="weightResult" style="display:none;"></div>
+      <div class="formula-box">
+        📐 換算參考：<br>
+        1 臺斤 = 600 公克 = 0.6 公斤<br>
+        1 公斤 = 1000 公克 ≈ 1.667 臺斤<br>
+        1 磅 ≈ 453.6 公克 ≈ 0.756 臺斤<br>
+        1 港斤 = 604.79 公克
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PAGE: HISTORY ===== -->
+  <div class="page" id="page-history">
+    <div class="card">
+      <div class="card-title">
+        📋 計算紀錄
+        <span style="margin-left:auto;font-size:10px;cursor:pointer;color:var(--text-dim);" onclick="clearHistory()">清除全部</span>
+      </div>
+      <div id="historyList"><p class="no-history">🐶 還沒有紀錄，去算算看吧！</p></div>
+    </div>
+    <p class="note">最多保留 30 筆</p>
+  </div>
+
+</div>
+
+<script>
+// ===== TAB =====
+function switchTab(name) {
+  const pages = ['price','margin','weight','history'];
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', pages[i]===name));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(name==='history') renderHistory();
+}
+
+// ===== PER BOX =====
+function togglePerBox() {
+  const unit = document.getElementById('qtyUnit').value;
+  const show = ['箱','包','自訂'].includes(unit);
+  document.getElementById('perBoxRow').classList.toggle('show', show);
+  const lbl = unit==='自訂'?'單位':unit;
+  document.getElementById('perBoxLabel').textContent  = lbl;
+  document.getElementById('perBoxLabel2').textContent = lbl;
+}
+function setPerBox(n){ document.getElementById('perBox').value = n; }
+
+// ===== HELPERS =====
+function toKg(val, unit) {
+  const m = {kg:1,'台斤':0.6,g:0.001,lb:0.4536,oz:0.02835,catty:0.60479,jin:0.6};
+  return val * (m[unit]||1);
+}
+function setW(v,u){ document.getElementById('weightPerUnit').value=v; document.getElementById('weightUnit').value=u; }
+function fmt(n){
+  if(n===undefined||n===null||isNaN(n)) return '—';
+  if(!n&&n!==0) return '0';
+  if(Math.abs(n)>=100) return Math.round(n).toLocaleString('zh-TW');
+  return parseFloat(n.toFixed(2)).toLocaleString('zh-TW');
+}
+function fmtW(n){
+  if(!n&&n!==0) return '0';
+  if(Math.abs(n)>=10) return parseFloat(n.toFixed(2)).toLocaleString('zh-TW');
+  return parseFloat(n.toFixed(4)).toLocaleString('zh-TW');
+}
+
+// ===== PRICE =====
+function calcPrice() {
+  const qty       = parseFloat(document.getElementById('qty').value)||0;
+  const qtyUnit   = document.getElementById('qtyUnit').value;
+  const perBox    = parseFloat(document.getElementById('perBox').value)||1;
+  const weightPer = parseFloat(document.getElementById('weightPerUnit').value)||0;
+  const weightU   = document.getElementById('weightUnit').value;
+  const price     = parseFloat(document.getElementById('price').value)||0;
+  const priceU    = document.getElementById('priceUnit').value;
+
+  if(!qty && !price){ alert('🐶 請輸入資料喔！汪！'); return; }
+
+  // 個數
+  let totalItems = qty;
+  if(qtyUnit==='打')      totalItems = qty*12;
+  else if(qtyUnit==='百') totalItems = qty*100;
+  else if(['箱','包','自訂'].includes(qtyUnit)) totalItems = qty * perBox;
+
+  // 重量
+  const wKgPer   = toKg(weightPer, weightU);
+  const totalWKg = wKgPer * totalItems;
+  const totalWJin= totalWKg / 0.6;
+  const totalWG  = totalWKg * 1000;
+
+  // 金額
+  let total = 0;
+  if(priceU==='per_item') total = price * totalItems;
+  else if(priceU==='per_box') total = price * qty;
+  else if(priceU==='per_kg')  total = price * totalWKg;
+  else if(priceU==='per_jin') total = price * totalWJin;
+  else if(priceU==='per_g')   total = price * totalWG;
+  else if(priceU==='per_lb')  total = price * (totalWKg/0.4536);
+
+  const unitLabels = {per_item:'元/個',per_box:'元/'+qtyUnit,per_kg:'元/公斤',per_jin:'元/臺斤',per_g:'元/公克',per_lb:'元/磅'};
+  const puL = unitLabels[priceU];
+
+  let qtyDesc = `${qty} ${qtyUnit}`;
+  if(['箱','包','自訂'].includes(qtyUnit)) qtyDesc += `（每${qtyUnit} ${perBox} 個）`;
+  else if(qtyUnit==='打') qtyDesc += `（12個/打）`;
+  else if(qtyUnit==='百') qtyDesc += `（×100個）`;
+
+  const el = document.getElementById('priceResult');
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="result-card">
+      <div class="result-label">💰 總金額</div>
+      <div class="result-value">${fmt(total)}<span>元</span></div>
+      <div class="result-grid">
+        <div class="result-mini"><div class="result-label">📦 共幾個</div><div class="result-value" style="font-size:22px;">${fmt(totalItems)}<span>個</span></div></div>
+        <div class="result-mini"><div class="result-label">⚖️ 總重 kg</div><div class="result-value">${fmtW(totalWKg)}<span>kg</span></div></div>
+        <div class="result-mini"><div class="result-label">🇹🇼 臺斤</div><div class="result-value">${fmtW(totalWJin)}<span>斤</span></div></div>
+        <div class="result-mini"><div class="result-label">💵 單價</div><div class="result-value" style="font-size:17px;">${fmt(price)}<span>${puL}</span></div></div>
+      </div>
+    </div>`;
+
+  saveHistory({ label:`${qtyDesc} @ ${price}${puL}`, val:`${fmt(total)} 元` });
+}
+
+function resetPrice(){
+  ['qty','perBox','weightPerUnit','price'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('priceResult').style.display='none';
+  document.getElementById('perBoxRow').classList.remove('show');
+  document.getElementById('qtyUnit').value='個';
+}
+
+// ===== MARGIN =====
+function setMargin(pct) {
+  document.getElementById('marginPct').value = pct;
+  document.querySelectorAll('.margin-quick').forEach(b => {
+    const match = b.textContent.includes(pct+'%') || (pct===25 && b.textContent.includes('兩成半'));
+    b.classList.toggle('selected', match);
+  });
+  calcMargin();
+}
+function clearMarginQuick(){ document.querySelectorAll('.margin-quick').forEach(b=>b.classList.remove('selected')); }
+
+// 填一格清其他三格成本
+function syncCost(from) {
+  ['Item','Kg','Jin','G'].forEach(id=>{ if(id!==from) document.getElementById('cost'+id).value=''; });
+  calcMargin();
+}
+
+function calcMargin() {
+  const pct = parseFloat(document.getElementById('marginPct').value);
+  if(!pct||pct<=0||pct>=100){ document.getElementById('marginResult').style.display='none'; return; }
+
+  const mult = 1/(1-pct/100);
+
+  const costItem = parseFloat(document.getElementById('costItem').value)||0;
+  const costKg   = parseFloat(document.getElementById('costKg').value)||0;
+  const costJin  = parseFloat(document.getElementById('costJin').value)||0;
+  const costG    = parseFloat(document.getElementById('costG').value)||0;
+
+  const mW     = parseFloat(document.getElementById('mWeight').value)||0;
+  const mWUnit = document.getElementById('mWeightUnit').value;
+  const mWKg   = mW ? toKg(mW, mWUnit) : 0;
+
+  // 統一換到 元/公斤
+  let refKg = 0;
+  let mainSource = '';
+  if(costKg)      { refKg = costKg;              mainSource='kg'; }
+  else if(costJin){ refKg = costJin/0.6;         mainSource='jin'; }
+  else if(costG)  { refKg = costG*1000;          mainSource='g'; }
+  else if(costItem && mWKg) { refKg = costItem/mWKg; mainSource='item'; }
+
+  // 元/個 基礎
+  let refItem = 0;
+  if(costItem) refItem = costItem;
+  else if(refKg && mWKg) refItem = refKg * mWKg;
+
+  // 售價
+  const spItem = refItem ? refItem*mult : 0;
+  const spKg   = refKg   ? refKg*mult  : 0;
+  const spJin  = spKg    ? spKg*0.6   : 0;
+  const spG    = spKg    ? spKg/1000  : 0;
+
+  const hasCost = refItem||refKg;
+
+  // 中文成數
+  const chMap = {10:'一成',20:'二成',25:'兩成半',30:'三成',40:'四成',50:'五成'};
+  const chName = chMap[pct]||'';
+
+  const el = document.getElementById('marginResult');
+  el.style.display='block';
+
+  // 判斷哪列是「主要輸入」反白
+  const highlightKg   = mainSource==='kg'||mainSource==='g'||mainSource==='jin';
+  const highlightItem = mainSource==='item';
+
+  el.innerHTML = `
+    <div class="margin-result-main">
+      <div class="result-label">毛利率 ${chName?chName+' ':''}${pct}%　→　售價乘數</div>
+      <div class="margin-big">× ${mult.toFixed(4)}</div>
+      <div class="margin-desc">
+        意思是：成本 × ${mult.toFixed(4)} = 售價<br>
+        毛利公式：1 ÷ (1 − ${pct}%) = ${mult.toFixed(4)}<br>
+        毛利 = (售價 − 成本) ÷ 售價 = ${pct}%
+      </div>
+    </div>
+
+    ${hasCost ? `
+    <div class="card">
+      <div class="card-title">💹 各單位建議售價</div>
+      <table class="price-table">
+        <tr><th>單位</th><th>成本</th><th>建議售價</th></tr>
+        ${spItem?`<tr class="${highlightItem?'highlight':''}"><td>元 / 個</td><td>${fmt(refItem)}</td><td>${fmt(spItem)}</td></tr>`:''}
+        ${spKg  ?`<tr class="${highlightKg&&mainSource==='kg'?'highlight':''}"><td>元 / 公斤</td><td>${fmt(refKg)}</td><td>${fmt(spKg)}</td></tr>`:''}
+        ${spJin ?`<tr class="${highlightKg&&mainSource==='jin'?'highlight':''}"><td>元 / 臺斤</td><td>${fmt(refKg*0.6)}</td><td>${fmt(spJin)}</td></tr>`:''}
+        ${spG   ?`<tr class="${highlightKg&&mainSource==='g'?'highlight':''}"><td>元 / 公克</td><td>${fmt(refKg/1000)}</td><td>${fmt(spG)}</td></tr>`:''}
+      </table>
+    </div>` : `
+    <div class="card" style="text-align:center;color:var(--text-dim);font-size:12px;padding:16px;">
+      🐶 填入成本，就能自動算出各單位建議售價！
+    </div>`}
+  `;
+
+  if(hasCost){
+    const valStr = spItem?`售 ${fmt(spItem)} 元/個`:spKg?`售 ${fmt(spKg)} 元/kg`:'';
+    saveHistory({ label:`毛利 ${pct}% ×${mult.toFixed(3)}`, val:valStr });
+  }
+}
+
+function resetMargin(){
+  ['marginPct','costItem','costKg','costJin','costG','mWeight'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('marginResult').style.display='none';
+  document.querySelectorAll('.margin-quick').forEach(b=>b.classList.remove('selected'));
+}
+
+// ===== WEIGHT CONVERTER =====
+function calcWeight(){
+  const val=parseFloat(document.getElementById('wInput').value);
+  const from=document.getElementById('wFrom').value;
+  if(!val||isNaN(val)){ document.getElementById('weightResult').style.display='none'; return; }
+  const kg=toKg(val,from);
+  const jin=kg/0.6,g=kg*1000,lb=kg/0.4536,oz=kg/0.02835,catty=kg/0.60479;
+  const el=document.getElementById('weightResult');
+  el.style.display='block';
+  el.innerHTML=`
+    <div class="result-card">
+      <div class="result-label" style="margin-bottom:8px;">🔄 換算結果</div>
+      <div class="result-grid">
+        <div class="result-mini"><div class="result-label">公斤 kg</div><div class="result-value">${fmtW(kg)}</div></div>
+        <div class="result-mini"><div class="result-label">臺斤</div><div class="result-value">${fmtW(jin)}</div></div>
+        <div class="result-mini"><div class="result-label">公克 g</div><div class="result-value">${fmtW(g)}</div></div>
+        <div class="result-mini"><div class="result-label">磅 lb</div><div class="result-value">${fmtW(lb)}</div></div>
+        <div class="result-mini"><div class="result-label">盎司 oz</div><div class="result-value">${fmtW(oz)}</div></div>
+        <div class="result-mini"><div class="result-label">港斤</div><div class="result-value">${fmtW(catty)}</div></div>
+      </div>
+    </div>`;
+}
+
+// ===== HISTORY =====
+function saveHistory(item){
+  let h=JSON.parse(localStorage.getItem('ww_h')||'[]');
+  h.unshift({...item,time:new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})});
+  if(h.length>30) h=h.slice(0,30);
+  localStorage.setItem('ww_h',JSON.stringify(h));
+}
+function renderHistory(){
+  let h=JSON.parse(localStorage.getItem('ww_h')||'[]');
+  const el=document.getElementById('historyList');
+  if(!h.length){ el.innerHTML='<p class="no-history">🐶 還沒有紀錄，去算算看吧！</p>'; return; }
+  el.innerHTML=h.map(i=>`
+    <div class="history-item">
+      <div><div class="hi-label">${i.label}</div><div style="font-size:10px;color:var(--text-dim);margin-top:2px;">${i.time}</div></div>
+      <div class="hi-val">${i.val}</div>
+    </div>`).join('');
+}
+function clearHistory(){ localStorage.removeItem('ww_h'); renderHistory(); }
+
+// ===== FLOATING PAWS =====
+(function(){
+  const c=document.getElementById('pawContainer');
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div');
+    p.className='paw';
+    p.textContent=['🐾','🐾','🐾','🐶'][Math.floor(Math.random()*4)];
+    p.style.left=Math.random()*100+'vw';
+    p.style.fontSize=(12+Math.random()*14)+'px';
+    p.style.animationDuration=(14+Math.random()*18)+'s';
+    p.style.animationDelay=(-Math.random()*22)+'s';
+    c.appendChild(p);
+  }
+})();
+</script>
+</body>
+</html>
