@@ -423,8 +423,22 @@ function calcPrice(){
     else if(!isBox) wNote="每個 "+weightV+weightU;
   }
 
+  // 反推單位成本
+  var costPerItem = totalItems>0 ? total/totalItems : 0;
+  var costPerKg   = totalWKg>0  ? total/totalWKg   : 0;
+  var costPerJin  = totalWJin>0 ? total/totalWJin  : 0;
+  var costPerG    = totalWKg>0  ? total/(totalWKg*1000) : 0;
+
   var el=document.getElementById("priceResult");
   el.style.display="block";
+
+  // 成本反推列（只顯示算得出來的）
+  var costRows = "";
+  if(costPerKg)  costRows += "<tr><td>每公斤成本</td><td><b>"+fmt(costPerKg)+"</b> 元/kg</td></tr>";
+  if(costPerJin) costRows += "<tr><td>每臺斤成本</td><td><b>"+fmt(costPerJin)+"</b> 元/斤</td></tr>";
+  if(costPerItem)costRows += "<tr><td>每個成本</td><td><b>"+fmt(costPerItem)+"</b> 元/個</td></tr>";
+  if(wPerItem)   costRows += "<tr><td>每個重量</td><td><b>"+fmtW(wPerItem)+"</b> kg　/　<b>"+fmtW(wPerItem/0.6)+"</b> 斤</td></tr>";
+
   el.innerHTML=
     "<div class=\"result-card\">"+
     "<div class=\"result-label\">💰 總金額</div>"+
@@ -432,10 +446,17 @@ function calcPrice(){
     "<div class=\"result-grid\">"+
     "<div class=\"result-mini\"><div class=\"result-label\">📦 共幾個</div><div class=\"result-value\" style=\"font-size:20px\">"+fmt(totalItems)+"<span>個</span></div></div>"+
     "<div class=\"result-mini\"><div class=\"result-label\">⚖️ 總重</div><div class=\"result-value\">"+fmtW(totalWKg)+"<span>kg</span></div></div>"+
-    "<div class=\"result-mini\"><div class=\"result-label\">🇹🇼 臺斤</div><div class=\"result-value\">"+fmtW(totalWJin)+"<span>斤</span></div></div>"+
-    "<div class=\"result-mini\"><div class=\"result-label\">💵 單價</div><div class=\"result-value\" style=\"font-size:16px\">"+fmt(price)+"<span>"+puL+"</span></div></div>"+
+    "<div class=\"result-mini\"><div class=\"result-label\">🇹🇼 總臺斤</div><div class=\"result-value\">"+fmtW(totalWJin)+"<span>斤</span></div></div>"+
+    "<div class=\"result-mini\"><div class=\"result-label\">💵 輸入單價</div><div class=\"result-value\" style=\"font-size:16px\">"+fmt(price)+"<span>"+puL+"</span></div></div>"+
     "</div>"+
-    (wNote ? "<div style=\"margin-top:10px;font-size:11px;color:var(--text-mid)\">⚖️ "+wNote+"</div>" : "")+
+    (costRows ?
+      "<div style=\"margin-top:12px;border-top:1px solid rgba(220,155,70,0.2);padding-top:12px\">"+
+      "<div style=\"font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:.5px;margin-bottom:8px\">📊 換算成本</div>"+
+      "<table style=\"width:100%;border-collapse:collapse\">"+
+      "<style>.ctrow td{padding:7px 4px;border-bottom:1px solid rgba(220,155,70,0.1);font-size:13px;}.ctrow td:first-child{color:var(--text-mid);font-size:11px;font-weight:700;}.ctrow:last-child td{border-bottom:none;}</style>"+
+      costRows.replace(/<tr>/g,"<tr class=\"ctrow\">")+"</table></div>"
+    : "")+
+    (wNote ? "<div style=\"margin-top:8px;font-size:11px;color:var(--text-mid)\">⚖️ "+wNote+"</div>" : "")+
     "</div>";
 
   saveHistory({label:qtyDesc+" @ "+price+puL, val:fmt(total)+" 元"});
